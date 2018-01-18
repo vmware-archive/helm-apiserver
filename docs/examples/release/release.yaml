@@ -1,0 +1,7 @@
+note: Release Example
+sample: |
+  apiVersion: helm.bitnami.com/v1alpha1
+  kind: Release
+  metadata:
+    name: release-example
+  spec:

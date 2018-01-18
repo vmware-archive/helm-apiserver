@@ -1,0 +1,204 @@
+
+apiVersion: apiregistration.k8s.io/v1beta1
+kind: APIService
+metadata:
+  name: v1alpha1.helm.bitnami.com
+  labels:
+    api: helm-apiserver
+    apiserver: "true"
+spec:
+  version: v1alpha1
+  group: helm.bitnami.com
+  groupPriorityMinimum: 2000
+  priority: 200
+  service:
+    name: helm-apiserver
+    namespace: kube-system
+  versionPriority: 10
+  caBundle: "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURzakNDQXBxZ0F3SUJBZ0lKQVAvdGF5MDBmcXZITUEwR0NTcUdTSWIzRFFFQkN3VUFNRzR4Q3pBSkJnTlYKQkFZVEFuVnVNUXN3Q1FZRFZRUUlEQUp6ZERFS01BZ0dBMVVFQnd3QmJERUtNQWdHQTFVRUNnd0JiekVMTUFrRwpBMVVFQ3d3Q2IzVXhMVEFyQmdOVkJBTU1KR2hsYkcwdFlYQnBjMlZ5ZG1WeUxXTmxjblJwWm1sallYUmxMV0YxCmRHaHZjbWwwZVRBZUZ3MHhPREF4TURnd05UQTFNemRhRncweE9UQXhNRGd3TlRBMU16ZGFNRzR4Q3pBSkJnTlYKQkFZVEFuVnVNUXN3Q1FZRFZRUUlEQUp6ZERFS01BZ0dBMVVFQnd3QmJERUtNQWdHQTFVRUNnd0JiekVMTUFrRwpBMVVFQ3d3Q2IzVXhMVEFyQmdOVkJBTU1KR2hsYkcwdFlYQnBjMlZ5ZG1WeUxXTmxjblJwWm1sallYUmxMV0YxCmRHaHZjbWwwZVRDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTFBZOHRpQ1YvdC8KQ3hibHJzS1Q2d012M3BVU25CVkJIdmdBeUZXT2lqYnRXUlY5S2s5eE1XVy9pUkRQOXk4SWhWQ0tRaWxJVzI2ZApmYzdwb2JKQlRya3ZiNC9NbGcrdFFhQ1RtcXRaR0N4VXdKbSs5M0Z6RU5aZWhMQnNqbExDa25hUyt4OU4wUy84CnRvME5aSmZHRXhyL0lrU1d3bjRzTVB1Y3M5aFl6V2xSVVY5V2xtTi83NFNjUFFhVEJHQUNYVlVoeWpDa0FjRUgKVGFTajE5NitsTzRhTm1kVnBFVFhmalpDU0RvLyt5d2l0V3E2WVV1NExzYlcrcTA3SXNhbmZRZzltWnhyelJDbwplbnFLbk12clVwb3ZKd295V2VzMmQ5eUpEbnk1QnUrdFZKQ0trQ0VBejhmSzZzd1hjelRtOWxrTGl1OFUwbmZyCnd1Mkd1UitnS2ZrQ0F3RUFBYU5UTUZFd0hRWURWUjBPQkJZRUZLMHdFUlJqSzlzK3JqYUJHdkZ0SFA3UnRKOSsKTUI4R0ExVWRJd1FZTUJhQUZLMHdFUlJqSzlzK3JqYUJHdkZ0SFA3UnRKOStNQThHQTFVZEV3RUIvd1FGTUFNQgpBZjh3RFFZSktvWklodmNOQVFFTEJRQURnZ0VCQUVyV3c3enFadlk3bXhuY0tTZjE3SDNvaGljYjNPbUZ0KzRiCldteVoxMEVvVE0rTi9OM2ZDODlxK3liTnFSOWN4eTNBVWVPa1dSK2FweC9EVVhBMHJVUnFGTHpoYUp4YXR6QlkKc1AzbFhGYWd0a2doRU0vek5pNEhsNklUUDNvQlNjaElweFFEdDduYUpCZ05zekhUWDErdWRVY3FCcHFsVUN6dApQUVdPRVlabE5XV1lpODgwV1RUZnJYZEVLSyticG1vdDM1RnV5U1FqOHA2WnJETWVZd3BEMkJoUm9EZ1ZGL0MzCjZDcDU1QWJqVTAvc0xGSkdFbzQzbmk5VUgyMjM2UFRGNUMrRnpROEY4ZlhodU84VngxaXl3bS9IUlZqSE92dHAKbkcwN2d3cS8vZ2tmWTFxMXpqRWNFNnlobVcxODdUM3JRempsdE41SG5vSUROa2pSeUdNPQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg=="
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: helm-apiserver
+  namespace: kube-system
+  labels:
+    api: helm-apiserver
+    apiserver: "true"
+spec:
+  ports:
+  - port: 443
+    protocol: TCP
+    targetPort: 443
+  selector:
+    api: helm-apiserver
+    apiserver: "true"
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: helm-apiserver
+  namespace: kube-system
+  labels:
+    api: helm-apiserver
+    apiserver: "true"
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        api: helm-apiserver
+        apiserver: "true"
+    spec:
+      serviceAccountName: helm-apiserver
+      containers:
+      - name: apiserver
+        image: bitnami/helm-apiserver:dev
+        volumeMounts:
+        - name: apiserver-certs
+          mountPath: /apiserver.local.config/certificates
+          readOnly: true
+        command:
+        - "apiserver"
+        args:
+        - "--etcd-servers=http://etcd-svc:2379"
+        - "--tls-cert-file=/apiserver.local.config/certificates/tls.crt"
+        - "--tls-private-key-file=/apiserver.local.config/certificates/tls.key"
+        - "--audit-log-path=-"
+        - "--audit-log-maxage=0"
+        - "--audit-log-maxbackup=0"
+        - "--admission-control=NamespaceLifecycle,VerifyImpersonator"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 20Mi
+          limits:
+            cpu: 100m
+            memory: 30Mi
+        readinessProbe:
+          httpGet:
+            port: 443
+            path: /healthz
+          failureThreshold: 8
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 15
+        livenessProbe:
+          httpGet:
+            port: 443
+            path: /healthz
+          failureThreshold: 8
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 15
+      - name: controller
+        image: bitnami/helm-apiserver:dev
+        command:
+        - "controller-manager"
+        args:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 20Mi
+          limits:
+            cpu: 100m
+            memory: 30Mi
+      volumes:
+      - name: apiserver-certs
+        secret:
+          secretName: helm-apiserver
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: etcd
+  namespace: kube-system
+spec:
+  serviceName: "etcd"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: etcd
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: etcd
+        image: quay.io/coreos/etcd:latest
+        resources:
+          requests:
+            cpu: 100m
+            memory: 20Mi
+          limits:
+            cpu: 100m
+            memory: 30Mi
+        env:
+        - name: ETCD_DATA_DIR
+          value: /etcd-data-dir
+        command:
+        - /usr/local/bin/etcd
+        - --listen-client-urls
+        - http://0.0.0.0:2379
+        - --advertise-client-urls
+        - http://localhost:2379
+        ports:
+        - containerPort: 2379
+        volumeMounts:
+        - name: etcd-data-dir
+          mountPath: /etcd-data-dir
+        readinessProbe:
+          httpGet:
+            port: 2379
+            path: /health
+          failureThreshold: 1
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 2
+        livenessProbe:
+          httpGet:
+            port: 2379
+            path: /health
+          failureThreshold: 3
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 2
+  volumeClaimTemplates:
+  - metadata:
+     name: etcd-data-dir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+         storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: etcd-svc
+  namespace: kube-system
+  labels:
+    app: etcd
+spec:
+  ports:
+  - port: 2379
+    name: etcd
+    targetPort: 2379
+  selector:
+    app: etcd
+---
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/tls
+metadata:
+  name: helm-apiserver
+  namespace: kube-system
+  labels:
+    api: helm-apiserver
+    apiserver: "true"
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURVakNDQWpvQ0NRQzM3WHI0ZEFjTjRUQU5CZ2txaGtpRzl3MEJBUXNGQURCdU1Rc3dDUVlEVlFRR0V3SjEKYmpFTE1Ba0dBMVVFQ0F3Q2MzUXhDakFJQmdOVkJBY01BV3d4Q2pBSUJnTlZCQW9NQVc4eEN6QUpCZ05WQkFzTQpBbTkxTVMwd0t3WURWUVFERENSb1pXeHRMV0Z3YVhObGNuWmxjaTFqWlhKMGFXWnBZMkYwWlMxaGRYUm9iM0pwCmRIa3dIaGNOTVRnd01UQTRNRFV3TlRNM1doY05NVGt3TVRBNE1EVXdOVE0zV2pCb01Rc3dDUVlEVlFRR0V3SjEKYmpFTE1Ba0dBMVVFQ0F3Q2MzUXhDakFJQmdOVkJBY01BV3d4Q2pBSUJnTlZCQW9NQVc4eEN6QUpCZ05WQkFzTQpBbTkxTVNjd0pRWURWUVFEREI1b1pXeHRMV0Z3YVhObGNuWmxjaTVyZFdKbExYTjVjM1JsYlM1emRtTXdnZ0VpCk1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRRE5IRDZLT0Y1Z0RkeHdhWld1cjZzTEFqTXAKTkpGWGpwS3ZHWCtteHBJelIrSXJuQWk0emd6SUp1QVBETGxFMm5IajNLNU5FOXhDTmkrbXBHSE9UYmgvcEFPMgo1L2FPbE9yTFlWZ25SOHhWR0lJTHNRdUlScUo2eCtHa2pzOWdMQ3lSZlc1ZTNuL05MalRlWmc4QTNjRUs1Y0tBCmJiN1BQUWt5ZVFacXM0aDlCU0VtWGtFRFUyZER6WWpmTkVqMVloc3lOcElnUFRhekxTd0NEeGw2QjNLWGN0OUMKbi9obk1ZbS9DcGpaMzZHeEVFN2o2eHFDWk5IL21aQTZjWUtwdXJvcEoxNDFTQUFiM1NyYmtWMzVSdVEzN09xNApLQVpUZnBqUWdTVmc5aFN1RVlsZ2FOejhCb09Pbm1BMklLSVRyOWQwRjNMRE54a1p5U0ZYZDRxZXRlQVpBZ01CCkFBRXdEUVlKS29aSWh2Y05BUUVMQlFBRGdnRUJBRTlYUXp3eE9HTU1wR3BCZk5jSmFLczNHZ3lBcVRicEhURlAKNDZ2YlNuWFdwbXF4MTIwTVhXWkpydmZVdVZyeTNCcE5YaE5iZEkyZU0zREErbk5LenFNdU84Q2FvOGhkb29nNQpkZzlvWXdxZGxDQnJYKzlrWnFpK1RucVdJV25QSkorTzJ2QStSZk5NTGJPYTM3amk5ZmZRTUZ6NzVtclZRQkloCjVmY1MyNDJneHlwTkhodGtQdGc3ZVFYK0V0eDlja0pjTVF3c3kvL0FkMGhIbFU5bVM5eE1PV0JDQkpOZWFXSVUKWVZTdTRHcU51dS92TzVneitPRVViOXpybmMvditueExuYnRVb1hYTnRWOTVFbmREWWpVd21uVExYRlp0d0RPbgphb1MwUEVRemVQMnlsbnhyUU5VdXFQeXNmVGV2UWlWQWI1SnhzdjhLOHVtdS9jYkxvWGc9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+  tls.key: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSUV2Z0lCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQktnd2dnU2tBZ0VBQW9JQkFRRE5IRDZLT0Y1Z0RkeHcKYVpXdXI2c0xBak1wTkpGWGpwS3ZHWCtteHBJelIrSXJuQWk0emd6SUp1QVBETGxFMm5IajNLNU5FOXhDTmkrbQpwR0hPVGJoL3BBTzI1L2FPbE9yTFlWZ25SOHhWR0lJTHNRdUlScUo2eCtHa2pzOWdMQ3lSZlc1ZTNuL05MalRlClpnOEEzY0VLNWNLQWJiN1BQUWt5ZVFacXM0aDlCU0VtWGtFRFUyZER6WWpmTkVqMVloc3lOcElnUFRhekxTd0MKRHhsNkIzS1hjdDlDbi9obk1ZbS9DcGpaMzZHeEVFN2o2eHFDWk5IL21aQTZjWUtwdXJvcEoxNDFTQUFiM1NyYgprVjM1UnVRMzdPcTRLQVpUZnBqUWdTVmc5aFN1RVlsZ2FOejhCb09Pbm1BMklLSVRyOWQwRjNMRE54a1p5U0ZYCmQ0cWV0ZUFaQWdNQkFBRUNnZ0VCQUpWWWRuVWdIQittbUJiRjJuWktkS2xjWGJJb0U1Z0VPT3dFRGYxNllxT3kKT0kxMlhLZHJhTVVvQVVjVUJhYUx4QmVjN05FMG45RWFNVklPS1NVVlZEeWtTUXdhRkYyM01zc0p3eTAreXhvKwo4Um5nUEx4cWFnNHFrakxHeFZxS2I1MDBEblJIWUJrZkJ1SFV3Q0hxVlpCQXdZSFA1dnB3djh5ZmNMdXFvN3dhCis3RUVkUkxPWHVENmN6OEd0T1hlRWwxS1hYYkxVdTVDUnNpOWxCYmJqeUkyajlZZzhGNzVnbTNFUy92bE00YzUKMXVhTFV5Wm0wcXVHWE5UN05iTWpnRXVla21WNDFEVU5CaVpabGJiaWdDRHZXZHRjWUhRQlgyOTV3YytZYzRUVQpIUWNBTzZPMkg0QXV1OXhZcUJBcFMwMGxaVUNDdkF1am1aMld3N3k0bnowQ2dZRUEvUjZtazhLVmR6MXFKZmdLCktGaEVxa24xMHJHY0MwUGJFVzgxNlQraWpmS0FkNkkzR2kwNFVJNS9sWVVyNlA4b0Y3MlVqOVB5YkxEOG9OaGsKd0dXWnh0SWJ6OEs5RUtjUnNVVHlra0gxejRjU1VhTlpmbWs4Z0dhZWJNcE9RMGtZSUNrTElKbWVXZWlCQW5VbApCMzBTaG82Q1pLVmxqUllMc1RnN0t6MkUvWE1DZ1lFQXozRzljdUMwa294QXQ5cy83aHRqOFhYbVMxSitIakVJCjlKSFpQaklQSjJlRVUwL2V1UzJUaFprZWppOTFnbm9DaUw3Um53Z0hCU1JyVHpDbXJpZy9RTzM2T1E1LzlmbWIKd29mZEFxTkVmVjJEOVdOMm0vU243bzJwZTZ6a0Z4WVZGcVdlOGpzSDdjbVlpUGpFbWpQN1czN0RaaVJCblFUUgorUXVWTHlCbmlVTUNnWUJGRzJvMWEybnRiVW9lNWJLNFF5azBLUTlCb0JaUGlRNDFtMXhudTJVQlJsVkcxSFlnCjRubStuTGsrdEdaQnJmQmZVdlpOc25zOHE3RzlwSGNWaEdmUXZhcTBOYUh5K3ZvOG9PdHRmUzdFbzBjZ0hPNGgKTWxBL2FrVVV4TU5MWVppQnAxTVBhb0d1WUdsZ3AyVWR2MHNnaTZZVUhvZzBWZkdKU0NYM2IwdHcrd0tCZ0QrWQpFOGJ5NGdpSEhKUUFqOUd6N2VpcEJ5ZVNLMzJmOUtuZFNHY0x1NStOMllBYzNSK1J2RWJaa1FkdnZ5dDNzZTB2CjZsMUJmYjF5MDc3Y0lFMEZvNWFKSGd0OXlYYWp4YjlXSFVmZ3UyOWZTc1BnY1EwUWJLYnlJTUg4VjVSSVBjREsKbHphVktESWFlanVMWCtJU0MzMmFGOWJwU0lBVmFUVmErcW9PMmc2M0FvR0JBUG51WlNUR29pTC93aWR1blJUdAp0MFVJWE00L3RXOWxWWkUrZGY3S3FucUtiMVEyVG1CTkpWVllyaHo1S0phV0tLRGlaWDJ6RXlwV3lPZ1ZHMUtkCnluVGNqT2JHb3djWDVFQzQrczRMVFVyajJENElBdkhLNDFSa1FlbnpXUlRjYnFNKzVUL2N0OEhXQXphNURqUzcKRjZqVU1aVCtTOWlaQ0hsb1NKSWRoYTJoCi0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0K
